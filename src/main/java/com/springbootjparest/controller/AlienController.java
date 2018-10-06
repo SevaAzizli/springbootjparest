@@ -5,9 +5,14 @@ import com.springbootjparest.model.Alien;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class AlienController {
@@ -15,31 +20,21 @@ public class AlienController {
     @Autowired
     AlienRepo alienRepo;
 
-    @RequestMapping("/")
-    public String home(){
+    @RequestMapping("/aliens")
+    @ResponseBody
+    public List<Alien> getAliens (){
 
-        return "home.jsp";
+        return alienRepo.findAll();
     }
 
-    @RequestMapping("/addAlien")
-    public String addAlien(Alien theAlien){
 
-        alienRepo.save( theAlien );
-        return "home.jsp";
-    }
+    @RequestMapping("/aliens/{alienId}")
+    @ResponseBody
+    public Optional<Alien> getAliens (@PathVariable("alienId") int id){
 
-    @RequestMapping("/getAlien")
-    public ModelAndView getAlien(@RequestParam int id){
+        return alienRepo.findById( id );
 
-        ModelAndView mv = new ModelAndView( "fetch.jsp" );
-        Alien alien = alienRepo.findById( id ).orElse( new Alien() );
 
-        //Create our custom methods and queries
-//        System.out.println(alienRepo.findByZlang( "Java" ));
-//        System.out.println(alienRepo.findByIdGreaterThan( 2 ));
-        System.out.println(alienRepo.findByZlangSortedByName("Java" ));
-        mv.addObject( alien );
-        return mv;
     }
 
 
