@@ -5,44 +5,65 @@ import com.springbootjparest.model.Alien;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
-@Controller
+import java.util.List;
+import java.util.Optional;
+
+@RestController
 public class AlienController {
 
     @Autowired
     AlienRepo alienRepo;
 
-    @RequestMapping("/")
-    public String home(){
+    @GetMapping("/aliens")
+    public List<Alien> getAliens (){
 
-        return "home.jsp";
+        return alienRepo.findAll();
     }
 
-    @RequestMapping("/addAlien")
-    public String addAlien(Alien theAlien){
+    @GetMapping("/aliens/{alienId}")
+    public Optional<Alien> getAliens (@PathVariable("alienId") int id){
 
-        alienRepo.save( theAlien );
-        return "home.jsp";
+        return alienRepo.findById( id );
+
     }
 
-    @RequestMapping("/getAlien")
-    public ModelAndView getAlien(@RequestParam int id){
+// send request in raw body:
+//    @PostMapping(path = "/alien")
+//    public Alien addAlien (@RequestBody Alien alien){
+//
+//       alienRepo.save( alien );
+//        return alien;
+//    }
 
-        ModelAndView mv = new ModelAndView( "fetch.jsp" );
-        Alien alien = alienRepo.findById( id ).orElse( new Alien() );
 
-        //Create our custom methods and queries
-//        System.out.println(alienRepo.findByZlang( "Java" ));
-//        System.out.println(alienRepo.findByIdGreaterThan( 2 ));
-        System.out.println(alienRepo.findByZlangSortedByName("Java" ));
-        mv.addObject( alien );
-        return mv;
+    // send request in multipart/form-data:
+    @PostMapping(path = "/alien")
+    public Alien addAlien ( Alien alien) {
+
+        alienRepo.save( alien );
+        return alien;
+
     }
 
+    // send request in raw body:
+    @DeleteMapping (path = "/alien/{id}")
+    public String deleteAlien (@PathVariable int id){
 
+        Alien a = alienRepo.getOne(id );
+       alienRepo.delete( a );
+        return "deleted!";
+    }
 
+    // send request in raw body:
+    @PutMapping (path = "/alien")
+    public Alien updateorcreateAlien (@RequestBody Alien alien){
+
+        alienRepo.save( alien );
+
+        return alien;
+    }
 
 }
